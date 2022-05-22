@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-class BaseModel:
+class BaseModel():
     def __init__(self, config):
         self.config = config
         # init the global step

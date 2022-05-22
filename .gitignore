@@ -105,3 +105,6 @@ ENV/
 .idea/modules.xml
 .idea/workspace.xml
 experiments/
+
+data/glove*
+data/squad*
