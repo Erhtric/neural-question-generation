@@ -141,4 +141,4 @@ Any kind of enhancement or contribution is welcomed.
 
 # Acknowledgments
 
-Currently using the sources from Python-templates/Tensorflow-Project-Template, I want to thank them for the excellent work.
+Currently using the sources from `Python-templates/Tensorflow-Project-Template`, I want to thank them for the excellent work.
