@@ -13,6 +13,7 @@
         -  [Logger](#logger)
         -  [Configuration](#configuration)
         -  [Main](#main)
+    -  [Technologies and Frameworks](#technologies-and-frameworks)
  -  [Future Work](#future-work)
  -  [Bibliography](#bibliography)
  -  [Acknowledgments](#acknowledgments)
@@ -135,6 +136,10 @@ Here's where you combine all previous part.
 3. Create an instance of "Trainer" and pass all previous objects to it.
 4. Now you can train your model by calling "Trainer.train()"
 
+# Technologies and Frameworks
+
+Frameworks:
+- [Tensorflow (v2.9.0)](https://www.tensorflow.org/)
 
 # Future Work
 - MISSING
