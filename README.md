@@ -2,6 +2,7 @@
 
 # Table Of Contents
 
+-  [Data](#data)
 -  [In Details](#in-details)
     -  [Project architecture](#project-architecture)
     -  [Folder structure](#folder-structure)
@@ -15,6 +16,10 @@
  -  [Future Work](#future-work)
  -  [Contributing](#contributing)
  -  [Acknowledgments](#acknowledgments)
+
+# Data
+
+The dataset on which we trained, developed and tested our QG network is the ***Stanford Question Answering Dataset*** (**SQuAD**) version 2.0, which is a collection of question-answer pairs derived from Wikipedia articles. The dataset was processed in order to better accomodonate our needs for the implementation.
 
 # In Details
 
@@ -138,6 +143,9 @@ Here's where you combine all previous part.
 # Contributing
 Any kind of enhancement or contribution is welcomed.
 
+# Bibliography
+
+1. [Learning to Ask: Neural Question Generation for Reading Comprehension](https://aclanthology.org/P17-1123) (Du et al., ACL 2017)
 
 # Acknowledgments
 
