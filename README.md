@@ -14,7 +14,6 @@
         -  [Configuration](#configuration)
         -  [Main](#main)
  -  [Future Work](#future-work)
- -  [Contributing](#contributing)
  -  [Bibliography](#bibliography)
  -  [Acknowledgments](#acknowledgments)
 
@@ -138,11 +137,7 @@ Here's where you combine all previous part.
 
 
 # Future Work
-- Replace the data loader part with new tensorflow dataset API.
-
-
-# Contributing
-Any kind of enhancement or contribution is welcomed.
+- MISSING
 
 # Bibliography
 
