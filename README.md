@@ -15,6 +15,7 @@
         -  [Main](#main)
  -  [Future Work](#future-work)
  -  [Contributing](#contributing)
+ -  [Bibliography](#bibliography)
  -  [Acknowledgments](#acknowledgments)
 
 # Data
