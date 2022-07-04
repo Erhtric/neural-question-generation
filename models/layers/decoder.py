@@ -1,8 +1,8 @@
 import tensorflow as tf
 from keras.models import Model
-from keras.layers import Embedding, LSTM, Input, Dense, AdditiveAttention
+from keras.layers import Embedding, LSTM, Input, Dense, AdditiveAttention, Concatenate
 
-class Decoder(tf.keras.Model):
+class Decoder(Model):
   def __init__(self, model_config, embedding_matrix, **kwargs):
     super(Decoder, self).__init__(**kwargs)
 
@@ -36,9 +36,9 @@ class Decoder(tf.keras.Model):
                            name='Decoding_question_2')
 
     # Additive attention layer, a.k.a. Bahdanau-style attention.
-    self.attention = tf.keras.layers.AdditiveAttention(name='Attention_head')
+    self.attention = AdditiveAttention(name='Attention_head')
 
-    self.concatenate = tf.keras.layers.Concatenate(axis=-1, name='Merge')
+    self.concatenate = Concatenate(axis=-1, name='Merge')
 
     self.fc1 = Dense(model_config['dec_units']*2, activation=tf.keras.activations.tanh, use_bias=False, name='Dense_Wt')
 

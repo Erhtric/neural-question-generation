@@ -24,6 +24,7 @@ model_config = {
     'dropout_rate': None,
     'regularizer': None,
     'embedding_dimension': 300,
+    'temperature': 0.7
 }
 
 # Relative path to the directory containing the dataset, the checkpoints and the processed dataset

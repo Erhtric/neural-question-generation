@@ -1,8 +1,8 @@
 import tensorflow as tf
 from keras.models import Model
-from keras.layers import Embedding, LSTM, Bidirectional, Input
+from keras.layers import Embedding, LSTM, Bidirectional, Input, Concatenate, SpatialDropout1D
 
-class Encoder(tf.keras.Model):
+class Encoder(Model):
   def __init__(self, model_config, embedding_matrix, **kwargs):
     super(Encoder, self).__init__(**kwargs)
 
@@ -18,7 +18,7 @@ class Encoder(tf.keras.Model):
                                mask_zero=True,
                                name='Context_embedding')
 
-    self.spatial_dropout = tf.keras.layers.SpatialDropout1D(model_config['dropout_rate'])
+    self.spatial_dropout = SpatialDropout1D(model_config['dropout_rate'])
 
     self.bi_lstm = Bidirectional(LSTM(model_config['enc_units']//2,
                                       return_sequences=True,
@@ -28,7 +28,7 @@ class Encoder(tf.keras.Model):
                                   name='Context_encoding',
                                   merge_mode='concat')
 
-    self.concatenate = tf.keras.layers.Concatenate(axis=1, name='Merge')
+    self.concatenate = Concatenate(axis=1, name='Merge')
 
   def call(self, inputs, state=None, training=False):
     # 1. The input is a tokenized and padded sentence containing the answer from the context
