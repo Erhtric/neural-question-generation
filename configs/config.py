@@ -1,0 +1,42 @@
+batch_size = 128
+units = 600
+keras_tuner = True
+
+# Dataset configuration: in this case we are working with a reduced version
+# of the SQuAD dataset.
+dataset_config = {
+    'num_examples': 18896,
+    # 'num_examples': 9448,
+    'num_words_context': 45000,
+    'num_words_question': 28000,
+    'buffer_size': 32000,
+    'batch_size': batch_size,
+    'random_seed': 13,
+}
+
+# Model configuration: this is the configuration of the model that will be
+# trained.
+model_config = {
+    'batch_size': batch_size,
+    'enc_units': units,
+    'dec_units': units,
+    'max_length_context': None,
+    'max_length_question': None,
+    'dropout_rate': None,
+    'regularizer': None,
+}
+
+# Relative path to the directory containing the dataset, the checkpoints and the processed dataset
+path = {
+    'training_json_path': "./data/training_set.json",
+    'save_pkl_path': "./data/squadv2.pkl",
+    # 'checkpoint_dir': "./training_checkpoints",
+}
+
+# Evaluation configuration: this is the configuration of the model that will be
+# used to evaluate the performance of the model.
+evaluation_config = {
+    'batch_size': 1,
+    'temperature': 0.7,
+}
+
