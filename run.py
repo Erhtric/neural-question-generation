@@ -1,7 +1,9 @@
 from pip import main
 from data_loader.data_generator import SQuAD
-from configs.config import *
+from utils.utils import prepare_embeddings
+import configs.config as config
 from utils import dirs
+import pprint
 
 if __name__ == '__main__':
     # main(['install', '-r', 'requirements.txt']) # Install all requirements
@@ -9,17 +11,37 @@ if __name__ == '__main__':
     # Create directories
     dirs.create_dirs(['./data', './models/training_checkpoints', './models/logs'])
 
-    # Create data generator for the dataset
-    print(f'Current dataset configuration: {dataset_config}')
+    # Load configurations
+    dataset_config = config.dataset_config
+    path = config.path
+    model_config = config.model_config
+
+    print('Current dataset configuration:\n')
+    pprint.pprint(dataset_config)
+    print()
+    print('Current paths:\n')
+    pprint.pprint(path)
+    print()
+
     data_generator = SQuAD()
     print('Loading dataset...please wait')
-    print(data_generator)
-    print('Dataset loaded!')
+    dataset, word_to_idx_context, word_to_idx_question = data_generator(
+        **dataset_config,
+        training_json_path=path['training_json_path'],
+        save_pkl_path=path['save_pkl_path'],
+        tokenized=True)
+    print('Dataset loaded!\n')
 
-    dataset, word_to_idx_context, word_to_idx_question = data_generator(**dataset_config, training_json_path=path['training_json_path'], save_pkl_path=path['save_pkl_path'], tokenized=True)
+    print(40*'=')
+    print(f'Context sentences max lenght: {data_generator.max_length_context}')
+    print(f'Question sentences max lenght: {data_generator.max_length_question}')
+    print(f'Vocab size --- [Context]: {len(word_to_idx_context[1])} [Question]: {len(word_to_idx_question[1])}')
+    print(40*'=')
 
-    max_length_context = dataset.train.element_spec[0].shape[1]
-    max_length_question = dataset.train.element_spec[1].shape[1]
+    model_config['max_length_context'] = data_generator.max_length_context
+    model_config['max_length_question'] = data_generator.max_length_question
 
-    print(f'Sentences max lenght: {max_length_context}')
-    print(f'Questions max lenght: {max_length_question}')
+    # Build embedding matrix for the context and the question
+    # We will fix the embedding dimension to be 300
+    embedding_matrix_context, embedding_matrix_question = prepare_embeddings(word_to_idx_context=word_to_idx_context, word_to_idx_question=word_to_idx_question)
+

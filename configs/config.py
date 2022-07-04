@@ -23,6 +23,7 @@ model_config = {
     'max_length_question': None,
     'dropout_rate': None,
     'regularizer': None,
+    'embedding_dimension': 300,
 }
 
 # Relative path to the directory containing the dataset, the checkpoints and the processed dataset
