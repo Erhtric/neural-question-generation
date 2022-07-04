@@ -1,5 +1,5 @@
 import tensorflow as tf
-from keras.losses import Loss, SparseCategoricalCrossentropy 
+from keras.losses import Loss, SparseCategoricalCrossentropy
 
 class MaskedLoss(Loss):
     """
@@ -14,7 +14,7 @@ class MaskedLoss(Loss):
 
     def __call__(self, y_true, y_pred):
         # Calculate the loss for each item in the batch.
-        loss = self.loss(y_true, y_pred) 
+        loss = self.loss(y_true, y_pred)
 
         # Mask off the losses on padding.
         mask = tf.cast(y_true != 0, tf.float32)

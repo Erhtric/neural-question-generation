@@ -4,12 +4,15 @@ from utils.utils import prepare_embeddings
 import configs.config as config
 from utils import dirs
 import pprint
+import os
 
 if __name__ == '__main__':
     # main(['install', '-r', 'requirements.txt']) # Install all requirements
 
     # Create directories
     dirs.create_dirs(['./data', './models/training_checkpoints', './models/logs'])
+    # Clean the logs directory from any previous runs
+    os.system('rm -rf ./models/logs/')
 
     # Load configurations
     dataset_config = config.dataset_config
