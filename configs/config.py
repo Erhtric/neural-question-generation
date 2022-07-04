@@ -1,25 +1,24 @@
-batch_size = 128
-units = 600
-keras_tuner = True
+BATCH_SIZE = 128
+UNITS = 300
+ENABLE_KERAS_TUNER = False
 
 # Dataset configuration: in this case we are working with a reduced version
 # of the SQuAD dataset.
 dataset_config = {
-    'num_examples': 18896,
-    # 'num_examples': 9448,
+    'num_examples': 90000,
     'num_words_context': 45000,
     'num_words_question': 28000,
     'buffer_size': 32000,
-    'batch_size': batch_size,
+    'batch_size': BATCH_SIZE,
     'random_seed': 13,
 }
 
 # Model configuration: this is the configuration of the model that will be
 # trained.
 model_config = {
-    'batch_size': batch_size,
-    'enc_units': units,
-    'dec_units': units,
+    'batch_size': BATCH_SIZE,
+    'enc_units': UNITS,
+    'dec_units': UNITS,
     'max_length_context': None,
     'max_length_question': None,
     'dropout_rate': None,

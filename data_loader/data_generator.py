@@ -1,29 +1,12 @@
+import numpy as np
 import pandas as pd
 import json
 import re
 import os
-import numpy as np
-import datetime
-import gensim.downloader as gloader
-from gensim.models import KeyedVectors
 from typing import List, Tuple, NamedTuple
 from sklearn.model_selection import train_test_split, GroupShuffleSplit
-from itertools import chain
-from tqdm import tqdm
 
 import tensorflow as tf
-from tensorflow import keras
-from keras.models import Model
-from keras.layers import (
-    Layer,
-    Embedding,
-    LSTM,
-    Dense,
-    Bidirectional,
-    Input,
-    AdditiveAttention,
-    Dropout
-)
 
 import nltk
 from nltk.tokenize import sent_tokenize
@@ -33,7 +16,7 @@ nltk.download('maxent_ne_chunker')
 nltk.download('words')
 
 # disable chained assignments to avoid annoying warning
-pd.options.mode.chained_assignment = None 
+pd.options.mode.chained_assignment = None
 
 class Dataset(NamedTuple):
   """
@@ -54,16 +37,15 @@ class SQuAD:
     self.batch_size = 0
 
   def __call__(self,
-           num_examples,
-           buffer_size,
-           batch_size,
+           num_examples, 
+           buffer_size, 
+           batch_size, 
            random_seed,
            training_json_path,
            save_pkl_path,
-           num_words_context=None,
-           num_words_question=None,
+           num_words_context=45000,
+           num_words_question=28000,
            tokenized=True,
-           pos_ner_tag=True,
            tensor_type=True):
     """The call() method loads the SQuAD dataset, preprocess it and optionally it returns 
     it tokenized. Moreover it also perform a 3-way split.
@@ -75,7 +57,7 @@ class SQuAD:
         batch_size (int): size of the batches
         tokenized (boolean): specifies if the context and question data should be both tokenized
         pos_ner_tag (boolean):
-        tensor_type (boolean):
+        tensor_type (boolean): 
 
     Returns (depending on the input parameters):
         pd.DataFrame: training dataset
@@ -89,7 +71,6 @@ class SQuAD:
     self.batch_size = batch_size
     self.training_json_path = training_json_path
     self.save_pkl_path = save_pkl_path
-    self.pos_ner_tag = pos_ner_tag
     self.max_length_context = 0
     self.max_length_question = 0
 
@@ -99,20 +80,17 @@ class SQuAD:
     self.extract_answer()
     # Preprocess context and question
     self.preprocess()
+    self.compute_max_length()
 
     # Perform splitting
     X_train, y_train, X_val, y_val, X_test, y_test = self.split_train_val(self.preproc_squad_df)
 
-    if self.pos_ner_tag:
-      pass
-
-    # Initialize Tokenizer for the source: in our case the context phrases
-    # alternatively TextVectorization
-    self.tokenizer_context = tf.keras.preprocessing.text.Tokenizer(filters='', 
+    # Initialize Tokenizer for the source: in our case the context sentences
+    self.tokenizer_context = tf.keras.preprocessing.text.Tokenizer(filters='',
                                                                    oov_token='<unk>',
                                                                    num_words=num_words_context)
-    # initialize also for the target, namely the question phrases
-    self.tokenizer_question = tf.keras.preprocessing.text.Tokenizer(filters='', 
+    # initialize also for the target, namely the question sentences
+    self.tokenizer_question = tf.keras.preprocessing.text.Tokenizer(filters='',
                                                                    oov_token='<unk>',
                                                                    num_words=num_words_question)
 
@@ -148,7 +126,7 @@ class SQuAD:
         test_dataset = test_dataset.cache().prefetch(buffer_size=AUTOTUNE)
 
         dataset = Dataset(
-            train=train_dataset, 
+            train=train_dataset,
             val=val_dataset,
             test=test_dataset)
 
@@ -158,6 +136,16 @@ class SQuAD:
         return X_train_tokenized, y_train_tokenized, X_val_tokenized, y_val_tokenized, X_test_tokenized, y_test_tokenized
     else:
       return X_train, y_train, X_val, y_val, X_test, y_test
+
+  def compute_max_length(self):
+    context_list = list(self.preproc_squad_df.context)
+    question_list = list(self.preproc_squad_df.question)
+
+    context_length = [len(sen.split()) for sen in context_list]
+    question_length = [len(sen.split()) for sen in question_list]
+
+    self.max_length_context = int(np.quantile(context_length, 0.995))
+    self.max_length_question = int(np.quantile(question_length, 0.995))
 
   def load_dataset(self, num_examples):
     """
@@ -170,37 +158,42 @@ class SQuAD:
     """
     if os.path.exists(self.save_pkl_path):
       print('File already exists! Loading from .pkl...\n')
+      print(f'Dir path {self.save_pkl_path}')
       self.squad_df = pd.read_pickle(self.save_pkl_path)
       self.squad_df = self.squad_df[:num_examples]
     else:
       print('Loading from .json...\n')
+      print(f'Dir path {self.training_json_path}')
       with open(self.training_json_path) as f:
           data = json.load(f)
 
       df_array = []
       for current_subject in data['data']:
+      # for current_subject in data:
           title = current_subject['title']
 
           for current_context in current_subject['paragraphs']:
               context = current_context['context']
 
-              for current_question in current_context['qas']:
-                  question = current_question['question']
-                  id = current_question['id']
+              for current_qas in current_context['qas']:
+                # Each qas is a list made of id, question, answers
+                id = current_qas['id']
+                question = current_qas['question']
+                answers = current_qas['answers']
 
-              for answer_text in current_question['answers']:
-                    answer = answer_text['text']
-                    answer_start = answer_text['answer_start']
-                    record = { "id": id,
-                                "title": title,
-                                "context": context,
-                                "question": question,
-                                "answer_start": answer_start,
-                                "answer": answer
-                                }
+                for current_answer in current_qas['answers']:
+                  answer_start = current_answer['answer_start']
+                  text = current_answer['text']
 
-              df_array.append(record)
-      
+                  record = { "id": id,
+                            "title": title,
+                            "context": context,
+                            "question": question,
+                            "answer_start": answer_start,
+                            "answer": text
+                            }
+
+                  df_array.append(record)
       # Save file
       pd.to_pickle(pd.DataFrame(df_array), self.save_pkl_path)
       self.squad_df = pd.DataFrame(df_array)[:num_examples]
@@ -215,7 +208,7 @@ class SQuAD:
     for c in context:
       c = self.__preprocess_sentence(c, question=False)
       preproc_context.append(c)
-    
+
     df.context = preproc_context
 
     # Pre-processing questions
@@ -225,7 +218,7 @@ class SQuAD:
     for q in question:
       q = self.__preprocess_sentence(q, question=True)
       preproc_question.append(q)
-    
+
     df.question = preproc_question
 
     # Remove features that are not useful
@@ -243,7 +236,6 @@ class SQuAD:
 
     sen = sen.strip()
 
-    # Adding a start and an end token to the sentence so that the model know when to 
     # start and stop predicting.
     # if not question: sen = '<SOS> ' + sen + ' <EOS>'
     sen = '<SOS> ' + sen + ' <EOS>'
