@@ -20,7 +20,7 @@ pd.options.mode.chained_assignment = None
 
 class Dataset(NamedTuple):
   """
-  This class represent a a 3-way split processed dataset. 
+  This class represent a a 3-way split processed dataset.
   """
   # Reference :- https://github.com/topper-123/Articles/blob/master/New-interesting-data-types-in-Python3.rst
   train: tf.data.Dataset
@@ -34,30 +34,16 @@ class SQuAD:
     self.preproc_squad_df = None
     self.tokenizer = None
     self.buffer_size = 0
-    self.batch_size = 0
 
-  def __call__(self,
-           num_examples, 
-           buffer_size, 
-           batch_size, 
-           random_seed,
-           training_json_path,
-           save_pkl_path,
-           num_words_context=45000,
-           num_words_question=28000,
-           tokenized=True,
-           tensor_type=True):
-    """The call() method loads the SQuAD dataset, preprocess it and optionally it returns 
-    it tokenized. Moreover it also perform a 3-way split.
+  def __call__(self, dataset_config, path, tokenized=True, tensor_type=True):
+    """The method loads a subset of the SQuAD dataset, preprocess it and optionally it returns
+    it tokenized.
 
     Args:
-        num_examples (int): number of examples to be taken from the original SQuAD dataset
-        num_words (int): the maximum number of words to keep, based on word frequency. Only the most common num_words-1 words will be kept. 
-        buffer_size (int): buffer size for the shuffling operation
-        batch_size (int): size of the batches
+        dataset_config: a dictionary containing the dataset configuration infos
+        path: a dictionary containing the dataset path infos
         tokenized (boolean): specifies if the context and question data should be both tokenized
-        pos_ner_tag (boolean):
-        tensor_type (boolean): 
+        tensor_type (boolean): specifies if the context and question data should be converted to tensors
 
     Returns (depending on the input parameters):
         pd.DataFrame: training dataset
@@ -66,16 +52,18 @@ class SQuAD:
           OR
         NamedTuple: dataset, (dict, dict, dict)
     """
-    self.random_seed = random_seed
-    self.buffer_size = buffer_size
-    self.batch_size = batch_size
-    self.training_json_path = training_json_path
-    self.save_pkl_path = save_pkl_path
+    self.random_seed = dataset_config['random_seed']
+    self.buffer_size = dataset_config['buffer_size']
+    self.batch_size = dataset_config['batch_size']
+    self.train_size = dataset_config['train_size']
+    self.test_size = dataset_config['test_size']
+    self.training_json_path = path['training_json_path']
+    self.save_pkl_path = path['save_pkl_path']
     self.max_length_context = 0
     self.max_length_question = 0
 
     # Load dataset from file
-    self.load_dataset(num_examples)
+    self.load_dataset(dataset_config['num_examples'])
     # Extract answer
     self.extract_answer()
     # Preprocess context and question
@@ -88,11 +76,11 @@ class SQuAD:
     # Initialize Tokenizer for the source: in our case the context sentences
     self.tokenizer_context = tf.keras.preprocessing.text.Tokenizer(filters='',
                                                                    oov_token='<unk>',
-                                                                   num_words=num_words_context)
+                                                                   num_words=dataset_config['num_words_context'])
     # initialize also for the target, namely the question sentences
     self.tokenizer_question = tf.keras.preprocessing.text.Tokenizer(filters='',
                                                                    oov_token='<unk>',
-                                                                   num_words=num_words_question)
+                                                                   num_words=dataset_config['num_words_question'])
 
     if tokenized:
       X_train_tokenized, word_to_idx_train_context = self.__tokenize_context(X_train, test=False)
@@ -236,6 +224,7 @@ class SQuAD:
 
     sen = sen.strip()
 
+    # Adding a start and an end token to the sentence so that the model know when to
     # start and stop predicting.
     # if not question: sen = '<SOS> ' + sen + ' <EOS>'
     sen = '<SOS> ' + sen + ' <EOS>'
@@ -254,7 +243,7 @@ class SQuAD:
     end_idx = [start + len(list(answer)) for start, answer in zip(list(start_idx), list(df.answer))]
     return pd.DataFrame(list(zip(start_idx, end_idx)), columns=['start', 'end'])
 
-  def split_train_val(self, df, train_size=0.8):
+  def split_train_val(self, df):
     """
     This method splits the dataframe in training and test sets, or eventually, in training, validation and test sets.
 
@@ -262,11 +251,10 @@ class SQuAD:
         :param df: the target Dataframe
         :param random_seed: random seed used in the splits
         :param train_size: represents the absolute number of train samples
-        :param val: boolean for choosing between a 3-way split or 2-way one.
 
     Returns:
-        - Data and labels for training, validation and test sets if val is True 
-        - Data and labels for training and test sets if val is False 
+        - Data and labels for training, validation and test sets if val is True
+        - Data and labels for training and test sets if val is False
 
     """
     # Maybe we have also to return the index for the starting answer
@@ -277,7 +265,7 @@ class SQuAD:
     y = df['question']
 
     # In the first step we will split the data in training and remaining dataset
-    splitter = GroupShuffleSplit(train_size=train_size, n_splits=2, random_state=self.random_seed)
+    splitter = GroupShuffleSplit(train_size=self.train_size, n_splits=2, random_state=self.random_seed)
     split = splitter.split(X, groups=X['title'])
     train_idx, rem_idx = next(split)
 
@@ -287,8 +275,8 @@ class SQuAD:
     y_rem = y.iloc[rem_idx]
 
 
-    # Val and test test accounts for 10% of the total data. Both 5%.
-    splitter = GroupShuffleSplit(train_size=train_size, n_splits=2, random_state=self.random_seed)
+    # Val and test test accounts for the remaining percentage of the total data
+    splitter = GroupShuffleSplit(test_size=self.test_size, n_splits=2, random_state=self.random_seed)
     split = splitter.split(X_rem, groups=X_rem['title'])
     val_idx, test_idx = next(split)
 
@@ -323,7 +311,7 @@ class SQuAD:
     question = y
     if not test: self.tokenizer_question.fit_on_texts(question)
     question_tf = self.tokenizer_question.texts_to_sequences(question)
-    
+
     if self.max_length_question != 0:
       question_tf_pad = tf.keras.preprocessing.sequence.pad_sequences(question_tf, maxlen=self.max_length_question, padding='post')
     else:
@@ -342,12 +330,12 @@ class SQuAD:
     df = self.squad_df.copy()
     start_end = self.__answer_start_end(df)
     context = list(df.context)
-    
+
     selected_sentences = []
     for i, par in enumerate(context):
       sentences = sent_tokenize(par)
       start = start_end.iloc[i].start
-      end = start_end.iloc[i].end      
+      end = start_end.iloc[i].end
       right_sentence = ""
       context_characters = 0
 
@@ -373,9 +361,9 @@ class SQuAD:
 
     # Reference:- https://www.tensorflow.org/api_docs/python/tf/data/Dataset
     dataset = tf.data.Dataset.from_tensor_slices(
-        (tf.cast(list(X), tf.int64), 
+        (tf.cast(list(X), tf.int64),
          tf.cast(list(y), tf.int64)))
-    if train: 
+    if train:
       dataset = dataset.shuffle(self.buffer_size).batch(self.batch_size, drop_remainder=True)
     else:
       dataset = dataset.batch(self.batch_size, drop_remainder=True)

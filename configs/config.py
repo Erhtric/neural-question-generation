@@ -7,6 +7,8 @@ ENABLE_KERAS_TUNER = False
 # of the SQuAD dataset.
 dataset_config = {
     'num_examples': 90000,
+    'train_size': 0.65,
+    'test_size': 0.40,
     'num_words_context': 45000,
     'num_words_question': 28000,
     'buffer_size': 32000,

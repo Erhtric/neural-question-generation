@@ -1,7 +1,7 @@
 from pip import main
 from data_loader.data_generator import SQuAD
 from utils.utils import prepare_embeddings
-import configs.config as config
+from configs.config import dataset_config, model_config, path
 from utils import dirs
 import pprint
 import os
@@ -15,9 +15,9 @@ if __name__ == '__main__':
     os.system('rm -rf ./models/logs/')
 
     # Load configurations
-    dataset_config = config.dataset_config
-    path = config.path
-    model_config = config.model_config
+    dataset_config = dataset_config
+    path = path
+    model_config = model_config
 
     print('Current dataset configuration:\n')
     pprint.pprint(dataset_config)
@@ -28,11 +28,7 @@ if __name__ == '__main__':
 
     data_generator = SQuAD()
     print('Loading dataset...please wait')
-    dataset, word_to_idx_context, word_to_idx_question = data_generator(
-        **dataset_config,
-        training_json_path=path['training_json_path'],
-        save_pkl_path=path['save_pkl_path'],
-        tokenized=True)
+    dataset, word_to_idx_context, word_to_idx_question = data_generator(dataset_config, path, tokenized=True)
     print('Dataset loaded!\n')
 
     print(40*'=')

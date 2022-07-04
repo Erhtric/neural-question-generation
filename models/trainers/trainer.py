@@ -11,7 +11,7 @@ from metrics import MaskedAccuracy, Perplexity
 class Trainer(Model):
   def __init__(self, model_config, embedding_matrix_context, embedding_matrix_question, **kwargs):
     """
-    Prepare the model for the training. It builds the both the encoder and the decoder by
+    Creates a model to be trained. It builds the both the encoder and the decoder by
     exploiting the tf.keras.Model Sub-Classing API.
     Also it defines a wrapper to use the tf.function compilation for the tensorflow computational
     graph.
