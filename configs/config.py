@@ -51,3 +51,6 @@ evaluation_config = {
     'temperature': 0.7,
 }
 
+keras_tuner_config = {
+    'epochs_tuning': 30,
+}
