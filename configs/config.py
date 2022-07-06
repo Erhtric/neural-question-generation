@@ -1,5 +1,9 @@
-BATCH_SIZE = 128
-UNITS = 300
+import tensorflow as tf
+from models.callbacks import BatchLogs
+from models.loss import MaskedLoss
+
+BATCH_SIZE = 256
+UNITS = 600
 TRAIN = False
 ENABLE_KERAS_TUNER = False
 
@@ -24,8 +28,8 @@ model_config = {
     'dec_units': UNITS,
     'max_length_context': None,
     'max_length_question': None,
-    'dropout_rate': None,
-    'regularizer': None,
+    'dropout_rate': .3,
+    'regularizer': 1e-3,
     'embedding_dimension': 300,
     'lr_schedule': [
         # (epoch to start, learning rate) tuples
@@ -54,3 +58,22 @@ evaluation_config = {
 keras_tuner_config = {
     'epochs_tuning': 30,
 }
+
+training_info = {
+    'verbose': 1,
+    'epochs': 30,
+    'batch_size': dataset_config['batch_size'],
+    'callbacks': [
+                  BatchLogs('batch_loss'),
+                  BatchLogs('perplexity'),
+                  BatchLogs('accuracy'),
+                  # lr_scheduler,
+                  # tensorboard_callback,
+                  # epoch_counter,
+                  tf.keras.callbacks.EarlyStopping(monitor='val_perplexity', patience=3, mode='max', restore_best_weights=True)
+                  ],
+}
+
+compile_info = {
+    'loss': MaskedLoss(),
+    'optimizer': tf.keras.optimizers.Adam(learning_rate=8e-6)}
