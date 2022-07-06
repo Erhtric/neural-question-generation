@@ -1,21 +1,13 @@
-import argparse
 from matplotlib import pyplot as plt
-from embeddings import GloVe
+from .embeddings import GloVe
 from configs.config import model_config
-from models.trainers import Trainer
+from models.trainers.trainer import Trainer
 from typing import NamedTuple
+import numpy as np
+import re
+import tensorflow as tf
 
-def get_args():
-    argparser = argparse.ArgumentParser(description=__doc__)
-    argparser.add_argument(
-        '-c', '--config',
-        metavar='C',
-        default='None',
-        help='The Configuration file')
-    args = argparser.parse_args()
-    return args
-
-def prepare_embeddings(word_to_idx_context, word_to_idx_question):
+def prepare_embeddings(word_to_idx_context: list, word_to_idx_question: list):
     """Creates the embedding matrix for the context and question words by using the pretrained GloVe embeddings.
 
     Args:
@@ -32,6 +24,7 @@ def prepare_embeddings(word_to_idx_context, word_to_idx_question):
     embedding_matrix_context, _ = glove_handler.build_embedding_matrix(
         word_to_idx_context[2],
         len(word_to_idx_context[2]))
+
     embedding_matrix_question, _ = glove_handler.build_embedding_matrix(
         word_to_idx_question[2],
         len(word_to_idx_question[2]))
@@ -39,7 +32,7 @@ def prepare_embeddings(word_to_idx_context, word_to_idx_question):
     return embedding_matrix_context, embedding_matrix_question
 
 # Utility function in order to build the compiled model
-def build_trainer(model_config, embedding_matrix_context, embedding_matrix_question, compile_info):
+def build_trainer(model_config: dict, embedding_matrix_context: np.ndarray, embedding_matrix_question:np.ndarray, compile_info: dict):
     """Builds the model for the model configuration and compiling information given.
 
     Args:
@@ -51,10 +44,8 @@ def build_trainer(model_config, embedding_matrix_context, embedding_matrix_quest
     Returns:
         model: compiled Keras model
     """
-    model = Trainer(model_config,
-                  embedding_matrix_context=embedding_matrix_context,
-                  embedding_matrix_question=embedding_matrix_question)
-
+    print(model_config)
+    model = Trainer(model_config, embedding_matrix_context=embedding_matrix_context, embedding_matrix_question=embedding_matrix_question)
     model.compile(**compile_info)
     return model
 
@@ -114,3 +105,22 @@ def plot_history(hist):
     axs[2].legend(['train_perplexity', 'val_perplexity'], loc='best')
 
     plt.show()
+
+def preprocess_input(sen, data_generator):
+    sen = re.sub(r"([?.!,¿])", r" \1 ", sen)
+    sen = re.sub(r'[" "]+', " ", sen)
+
+    # Replacing everything with space except (a-z, A-Z, ".", "?", "!", ",")
+    sen = re.sub(r"[^a-zA-Z0-9?.!,¿]+", " ", sen)
+
+    sen = sen.strip()
+
+    # Adding a start and an end token to the sentence so that the model know when to
+    # start and stop predicting.
+    # if not question: sen = '<SOS> ' + sen + ' <EOS>'
+    sen = '<SOS> ' + sen + ' <EOS>'
+    sen = data_generator.tokenizer_context.texts_to_sequences([sen])[0]
+    sen = tf.keras.preprocessing.sequence.pad_sequences([sen],
+                                                        maxlen=data_generator.max_length_context,
+                                                        padding='post')
+    return sen

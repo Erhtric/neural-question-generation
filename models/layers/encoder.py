@@ -5,9 +5,10 @@ from keras.layers import Embedding, LSTM, Bidirectional, Input, Concatenate, Spa
 class Encoder(Model):
   def __init__(self, model_config, embedding_matrix, **kwargs):
     super(Encoder, self).__init__(**kwargs)
+    self.batch_size = model_config['batch_size']
 
     self.encoder_input = Input(shape=(model_config['max_length_context'],),
-                             batch_size=model_config['batch_size'],
+                             batch_size=self.batch_size,
                              dtype=tf.int32,
                              name='Context')
     self.embedding = Embedding(input_dim=embedding_matrix.shape[0],

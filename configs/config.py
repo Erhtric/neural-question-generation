@@ -1,10 +1,5 @@
-import tensorflow as tf
-from models.callbacks import BatchLogs
-from models.loss import MaskedLoss
-
 BATCH_SIZE = 256
-UNITS = 600
-TRAIN = False
+UNITS = 512
 ENABLE_KERAS_TUNER = False
 
 # Dataset configuration: in this case we are working with a reduced version
@@ -35,15 +30,14 @@ model_config = {
         # (epoch to start, learning rate) tuples
         (15, 1e-1),
         (23, 5e-2),
-        # (12, 5e-5),
-        # (14, 1e-5),
         ],
 }
 
 # Relative path to the directory containing the dataset, the checkpoints and the processed dataset
 path = {
-    'training_json_path': "./data/training_set.json",
-    'save_pkl_path': "./data/squadv2.pkl",
+    'training_json_path': "./data/squad.json",
+    # 'training_json_path': "./data/dev-v2.0.json",
+    'save_pkl_path': "./data/squadv1.1.pkl",
     # 'checkpoint_dir': "./training_checkpoints",
     'log_dir': "./models/logs",
 }
@@ -51,7 +45,6 @@ path = {
 # Evaluation configuration: this is the configuration of the model that will be
 # used to evaluate the performance of the model.
 evaluation_config = {
-    'batch_size': 1,
     'temperature': 0.7,
 }
 
@@ -59,21 +52,21 @@ keras_tuner_config = {
     'epochs_tuning': 30,
 }
 
-training_info = {
-    'verbose': 1,
-    'epochs': 30,
-    'batch_size': dataset_config['batch_size'],
-    'callbacks': [
-                  BatchLogs('batch_loss'),
-                  BatchLogs('perplexity'),
-                  BatchLogs('accuracy'),
-                  # lr_scheduler,
-                  # tensorboard_callback,
-                  # epoch_counter,
-                  tf.keras.callbacks.EarlyStopping(monitor='val_perplexity', patience=3, mode='max', restore_best_weights=True)
-                  ],
-}
+# training_info = {
+#     'verbose': 1,
+#     'epochs': 30,
+#     'batch_size': dataset_config['batch_size'],
+#     'callbacks': [
+#                   BatchLogs('batch_loss'),
+#                   BatchLogs('perplexity'),
+#                   BatchLogs('accuracy'),
+#                   # lr_scheduler,
+#                   # tensorboard_callback,
+#                   # epoch_counter,
+#                   tf.keras.callbacks.EarlyStopping(monitor='val_perplexity', patience=3, mode='max', restore_best_weights=True)
+#                   ],
+# }
 
-compile_info = {
-    'loss': MaskedLoss(),
-    'optimizer': tf.keras.optimizers.Adam(learning_rate=8e-6)}
+# compile_info = {
+#     'loss': MaskedLoss(),
+#     'optimizer': tf.keras.optimizers.Adam(learning_rate=8e-6)}

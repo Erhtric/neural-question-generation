@@ -5,10 +5,11 @@ from keras.layers import Embedding, LSTM, Input, Dense, AdditiveAttention, Conca
 class Decoder(Model):
   def __init__(self, model_config, embedding_matrix, **kwargs):
     super(Decoder, self).__init__(**kwargs)
+    self.batch_size = model_config['batch_size']
 
     # Attributes
     self.new_token_input = Input(shape=(1),
-                           batch_size=model_config['batch_size'],
+                           batch_size=self.batch_size,
                            name='Token_t')
     self.enc_output_input = Input(shape=(model_config['max_length_context'], model_config['enc_units']), 
                             batch_size=model_config['batch_size'],

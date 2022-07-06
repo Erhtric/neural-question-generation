@@ -1,13 +1,11 @@
-import imp
 import tensorflow as tf
 from keras.layers import Input
 from keras.models import Model
 from keras.metrics import Accuracy, Mean
 from models.layers.encoder import Encoder
 from models.layers.decoder import Decoder
-from models.layers.masking import Masking
-from metrics import MaskedAccuracy, Perplexity
-
+from models.layers.masking import CustomMasking as Masking
+from .metrics import MaskedAccuracy, Perplexity
 class Trainer(Model):
   def __init__(self, model_config, embedding_matrix_context, embedding_matrix_question, **kwargs):
     """
@@ -165,7 +163,7 @@ class Trainer(Model):
   def test_step(self, inputs):
     """
     The logic for one evaluation step. This function should contain the mathematical logic 
-    for one step of evaluation. This typically includes the forward pass, 
+    for one step of evaluation. This typically includes the forward pass,
     loss calculation, and metrics updates.
 
     Called when at each epoch's end to validate on the validation data given.

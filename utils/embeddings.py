@@ -34,7 +34,7 @@ class GloVe:
     emb_model = gloader.load(download_path)
     return emb_model
 
-  def build_embedding_matrix(self, word_to_idx, vocab_size: int) -> np.ndarray:
+  def build_embedding_matrix(self, word_to_idx: list, vocab_size: int) -> np.ndarray:
     """
     Builds the embedding matrix of a specific dataset given a pre-trained word embedding model
 
@@ -50,7 +50,7 @@ class GloVe:
     oov_words = []
 
     # For each word which is not present in the vocabulary we assign a random vector, otherwise we take the GloVe embedding
-    for word, idx in tqdm(word_to_idx.items()):
+    for word, idx in word_to_idx.items():
       try:
         embedding_vector = self.embedding_model[word]
       except (KeyError, TypeError):
@@ -62,5 +62,5 @@ class GloVe:
 
       embedding_matrix[idx] = embedding_vector
 
-    print(f'\n[Debug] {oov_count} OOV words found!\n')
+    # print(f'\n[Debug] {oov_count} OOV words found!\n')
     return embedding_matrix, oov_words

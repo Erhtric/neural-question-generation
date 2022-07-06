@@ -10,10 +10,10 @@ import tensorflow as tf
 
 import nltk
 from nltk.tokenize import sent_tokenize
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('maxent_ne_chunker')
-nltk.download('words')
+nltk.download('punkt', quiet=True)
+nltk.download('averaged_perceptron_tagger', quiet=True)
+nltk.download('maxent_ne_chunker', quiet=True)
+nltk.download('words', quiet=True)
 
 # disable chained assignments to avoid annoying warning
 pd.options.mode.chained_assignment = None

@@ -119,7 +119,7 @@ class Evaluator(tf.Module):
         self.answerability_metric.reset_state()
 
         seq = []
-        for (context, question_true) in tqdm(inputs):
+        for (context, question_true) in inputs:
             question_true = self.remove_tags(question_true)
             prediction = self.predict_step(inputs=context,
                                             max_length=max_length,
@@ -128,8 +128,12 @@ class Evaluator(tf.Module):
 
             question_pred = prediction['text']
 
-            # Compute answerability weighted score on the given metric chosen
-            self.answerability_metric.update_state(y_pred=question_pred, y_true=question_true, metric_name=metric_name, metric_value=tf.constant(metric_value))
+            if metric_value != None:
+                # Compute answerability weighted score on the given metric chosen
+                self.answerability_metric.update_state(y_pred=question_pred, y_true=question_true, metric_name=metric_name, metric_value=tf.constant(metric_value))
+            else:
+                # Compute answerability alone
+                self.answerability_metric.update_state(y_pred=question_pred, y_true=question_true, metric_name="Answerability", metric_value=None)
             seq.append(self.answerability_metric.result())
 
         self.results_answerability[f'{metric_name}'] = tf.reduce_mean(seq).numpy()
@@ -158,7 +162,7 @@ class Evaluator(tf.Module):
         self.rougeL_recall_metric.reset_state()
         self.rougeL_fmeasure_metric.reset_state()
 
-        for (context, question_true) in tqdm(inputs):
+        for (context, question_true) in inputs:
             self.meteor_metric_batch.reset_state()
             self.rouge_metric_batch.reset_state()
 
@@ -210,7 +214,7 @@ class Evaluator(tf.Module):
             the predicted questions (and attention weights if requested)
         """
         results = []
-        for (context, _) in tqdm(inputs):
+        for (context, _) in inputs:
             results.append(self.predict_step(inputs=context,
                                             max_length=max_length,
                                             return_attention=return_attention,
@@ -250,12 +254,13 @@ class Evaluator(tf.Module):
             new_token = tf.where(done, tf.constant(0, dtype=tf.int64), new_token)
 
             # if a token produce has value <unk> set it as unk
-            unk = unk | (new_token == self.unk_idx)
-            # Once a token has been tagged as unk we have to chenage its value with
-            # the value in the context that has the highest attention
-            highest_attention = tf.math.argmax(attention_weights, axis=-1)
-            context_attention = tf.gather(inputs, highest_attention, axis=-1, batch_dims=1)
-            new_token = tf.where(unk, context_attention, new_token)
+            # unk = unk | (new_token == self.unk_idx)
+            # # Once a token has been tagged as unk we have to chenage its value with
+            # # the value in the context that has the highest attention
+            # highest_attention = tf.math.argmax(attention_weights, axis=-1)
+            # context_attention = tf.gather(inputs, highest_attention, axis=-1, batch_dims=1)
+            # print(context_attention)
+            # new_token = tf.where(unk, context_attention, new_token)
 
             result_tokens.append(new_token)
 
