@@ -1,5 +1,63 @@
 # Question Generation using Deep Learning
 
+This repository contains a final project realized for the Natural Language Processing course of the Master's degree in Artificial Intelligence, University of Bologna.
+
+# Table Of Contents
+
+-  [Data](#data)
+-  [Project Details](#project-details)
+    -  [Folder structure](#folder-structure)
+
+# Data
+
+The dataset on which we trained, developed and tested our QG network is the ***Stanford Question Answering Dataset*** (**SQuAD**) version 1.1, which is a collection of question-answer pairs derived from Wikipedia articles. The dataset was processed in order to better accomodonate our needs for the implementation.
+
+# Project Details
+
+
+Folder structure
+--------------
+
+```
+├── goqu.py
+│
+├── GoQUreport.pdf
+│
+├── requirements.txt
+│
+├──  configs
+│   └── config.py   - this file contains the configurations for the project.
+│
+├──  data   - this folder contains the data for the training and some additional files useful for further operations.
+│
+├── models
+│   └── eval
+│       ├── eval_metrics.py     - this file contains the metrics used for the evaluation.
+│       └── evaluator.py        - this file contains the class used for evaluation.
+│   └── layers
+│       ├── decoder.py          - this file contains the decoder layer.
+│       ├── encoder.py          - this file contains the encoder layer.
+│       └── masking.py          - this file contains the custom masking layer.
+│   └── trainers
+│       ├── keras_tuner.py      - this file contains the code for the automatic tuning.
+│       ├── trainer.py          - this file contains the class used for training.
+│       └── metrics.py          - this file contains the metrics used for evaluating training.
+│   ├── weights             - this folder contains the pre-trained weights from colab.
+│   ├── loss.py         - this file contains the loss used by the model
+│   └── callbacks.py    - this file contains the classes used as callbacks
+│
+│
+├── data_loader
+│   └── data_generator.py   - this file contains the dataset methods for loading and processing it.
+│
+└── utils   - this folder contains utility methods useful for complementary operations
+     ├── dirs.py
+     ├── embeddings.py
+     └── utils.py
+
+```
+
+<!--
 # Table Of Contents
 
 -  [Data](#data)
@@ -18,50 +76,8 @@
  -  [Bibliography](#bibliography)
  -  [Acknowledgments](#acknowledgments)
 
-# Data
-
-The dataset on which we trained, developed and tested our QG network is the ***Stanford Question Answering Dataset*** (**SQuAD**) version 2.0, which is a collection of question-answer pairs derived from Wikipedia articles. The dataset was processed in order to better accomodonate our needs for the implementation.
-
-# In Details
-
-Project architecture 
---------------
-
-<div align="center">
-
-<img align="center" hight="600" width="600" src="https://github.com/Mrgemy95/Tensorflow-Project-Templete/blob/master/figures/diagram.png?raw=true">
-
-</div>
 
 
-Folder structure
---------------
-
-```
-├──  base
-│   ├── base_model.py   - this file contains the abstract class of the model.
-│   └── base_train.py   - this file contains the abstract class of the trainer.
-│
-│
-├── model               - this folder contains any model of your project.
-│   └── example_model.py
-│
-│
-├── trainer             - this folder contains trainers of your project.
-│   └── example_trainer.py
-│   
-├──  mains              - here's the main(s) of your project (you may need more than one main).
-│    └── example_main.py  - here's an example of main that is responsible for the whole pipeline.
-
-│  
-├──  data _loader  
-│    └── data_generator.py  - here's the data_generator that is responsible for all data handling.
-│ 
-└── utils
-     ├── logger.py
-     └── any_other_utils_you_need
-
-```
 
 
 ## Main Components
@@ -151,3 +167,4 @@ Frameworks:
 # Acknowledgments
 
 Currently using the sources from `Python-templates/Tensorflow-Project-Template`, I want to thank them for the excellent work.
+--->
