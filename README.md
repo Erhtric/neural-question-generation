@@ -1,21 +1,29 @@
 # Question Generation using Deep Learning
 
-This repository contains a final project realized for the Natural Language Processing course of the Master's degree in Artificial Intelligence, University of Bologna.
+This repository contains a final project realized for the **Natural Language Processing** course of the [Master's degree in Artificial Intelligence](https://corsi.unibo.it/2cycle/artificial-intelligence), University of Bologna.
 
 # Table Of Contents
 
 -  [Data](#data)
 -  [Project Details](#project-details)
     -  [Folder structure](#folder-structure)
+    -  [Technologies and Frameworks](#technologies-and-frameworks)
+    -  [Configurations and enviroments](#configurations-and-enviroments)
+    -  [Versioning](#versioning)
+ -  [Future Works](#future-works)
+ -  [Group Members](#group-members)
+ -  [Bibliography](#bibliography)
+ -  [License](#license)
 
 # Data
 
-The dataset on which we trained, developed and tested our QG network is the ***Stanford Question Answering Dataset*** (**SQuAD**) version 1.1, which is a collection of question-answer pairs derived from Wikipedia articles. The dataset was processed in order to better accomodonate our needs for the implementation.
+The dataset on which we trained, developed and tested our *Question Generation* (QG) network is the ***Stanford Question Answering Dataset*** (**SQuAD**) version 1.1, which is a collection of question-answer pairs derived from Wikipedia articles. The dataset was processed in order to better accomodonate our needs for the implementation.
 
 # Project Details
 
+This project tries to solve the **Question Generation** task by using the ideas introduced in the paper by *Du et al.* [[1]](#1-learning-to-ask-neural-question-generation-for-reading-comprehensionhttpsaclanthologyorgp17-1123-du-et-al-acl-2017). It acknowledge that by implementing our revisited version of the model proposed in the 2017 by exploiting newer technologies and using the acclaimed Tensorflow framework provided by Google. To this end, this project only purpouse is only an educational and we do not reserve any credit for the great work done by Du et al.
 
-Folder structure
+## Folder structure
 --------------
 
 ```
@@ -57,114 +65,45 @@ Folder structure
 
 ```
 
-<!--
-# Table Of Contents
-
--  [Data](#data)
--  [In Details](#in-details)
-    -  [Project architecture](#project-architecture)
-    -  [Folder structure](#folder-structure)
-    -  [ Main Components](#main-components)
-        -  [Models](#models)
-        -  [Trainer](#trainer)
-        -  [Data Loader](#data-loader)
-        -  [Logger](#logger)
-        -  [Configuration](#configuration)
-        -  [Main](#main)
-    -  [Technologies and Frameworks](#technologies-and-frameworks)
- -  [Future Work](#future-work)
- -  [Bibliography](#bibliography)
- -  [Acknowledgments](#acknowledgments)
-
-
-
-
-
-## Main Components
-
-### Models
---------------
-- #### **Base model**
-    
-    Base model is an abstract class that must be Inherited by any model you create, the idea behind this is that there's much shared stuff between all models.
-    The base model contains:
-    - ***Save*** -This function to save a checkpoint to the desk. 
-    - ***Load*** -This function to load a checkpoint from the desk.
-    - ***Cur_epoch, Global_step counters*** -These variables to keep track of the current epoch and global step.
-    - ***Init_Saver*** An abstract function to initialize the saver used for saving and loading the checkpoint, ***Note***: override this function in the model you want to implement.
-    - ***Build_model*** Here's an abstract function to define the model, ***Note***: override this function in the model you want to implement.
-- #### **Your model**
-    Here's where you implement your model.
-    So you should :
-    - Create your model class and inherit the base_model class
-    - override "build_model" where you write the tensorflow model you want
-    - override "init_save" where you create a tensorflow saver to use it to save and load checkpoint
-    - call the "build_model" and "init_saver" in the initializer.
-
-### Trainer
---------------
-- #### **Base trainer**
-    Base trainer is an abstract class that just wrap the training process.
-    
-- #### **Your trainer**
-     Here's what you should implement in your trainer.
-    1. Create your trainer class and inherit the base_trainer class.
-    2. override these two functions "train_step", "train_epoch" where you implement the training process of each step and each epoch.
-### Data Loader
-This class is responsible for all data handling and processing and provide an easy interface that can be used by the trainer.
-### Logger
-This class is responsible for the tensorboard summary, in your trainer create a dictionary of all tensorflow variables you want to summarize then pass this dictionary to logger.summarize().
-
-
-This class also supports reporting to **Comet.ml** which allows you to see all your hyper-params, metrics, graphs, dependencies and more including real-time metric.
-Add your API key [in the configuration file](configs/example.json#L9):
-
-For example: "comet_api_key": "your key here"
-
-
-### Comet.ml Integration
-This template also supports reporting to Comet.ml which allows you to see all your hyper-params, metrics, graphs, dependencies and more including real-time metric. 
-
-Add your API key [in the configuration file](configs/example.json#L9):
-
-
-For example:  `"comet_api_key": "your key here"` 
-
-Here's how it looks after you start training:
-<div align="center">
-
-<img align="center" width="800" src="https://comet-ml.nyc3.digitaloceanspaces.com/CometDemo.gif">
-
-</div>
-
-You can also link your Github repository to your comet.ml project for full version control. 
-[Here's a live page showing the example from this repo](https://www.comet.ml/gidim/tensorflow-project-template/caba580d8d1547ccaed982693a645507/chart)
-
-
-
-### Configuration
-I use Json as configuration method and then parse it, so write all configs you want then parse it using "utils/config/process_config" and pass this configuration object to all other objects.
-### Main
-Here's where you combine all previous part.
-1. Parse the config file.
-2. Create a tensorflow session.
-2. Create an instance of "Model", "Data_Generator" and "Logger" and parse the config to all of them.
-3. Create an instance of "Trainer" and pass all previous objects to it.
-4. Now you can train your model by calling "Trainer.train()"
-
-# Technologies and Frameworks
+## Technologies and Frameworks
 
 Frameworks:
-- [Tensorflow (v2.9.0)](https://www.tensorflow.org/)
+- [Tensorflow (v2.5.0)](https://www.tensorflow.org/)
+- [Datasets (v1.18.4)](https://github.com/huggingface/datasets)
 
-# Future Work
-- MISSING
+Platforms
+- [Google Colaboratory]()
+
+## Configurations and enviroments
+
+The `config.py` file contains all the configurations needed by the project. The environment could be loaded by using `conda` by launching the command:
+```shell
+$ conda create --name <env> --file requirements.txt
+```
+
+## Versioning
+
+We used Git for versioning.
+
+# Future Works
+Possible improvements to this project could be:
+- encoding additional information to the embedding dimension, this means that we could concatenate to each word vector its NER and POS tags to augment the information given to the network,
+- adding a more sophisticated decoding in the last part, instead of using the temperature sampling, see [beam search decoding](https://scholar.google.it/scholar?q=beam+search+decoding&hl=en&as_sdt=0&as_vis=1&oi=scholart),
+- use [contextual word embeddings](https://scholar.google.it/scholar?hl=en&as_sdt=0%2C5&as_vis=1&q=contextual+word+embeddings&btnG=&oq=contextual+word),
+- use a different model, maybe more sophisticated.
+
+## Group members
+
+|   Name    |  Surname      |                 Email                     |                       Username                            |
+| :-------: | :-----------: | :---------------------------------------: | :-------------------------------------------------------: |
+| Eric      |   Rossetto    | `eric.rossetto@studio.unibo.it`           |   [_erhtric_](https://github.com/Erhtric)                 |
+| Salvatore |  Pisciotta    |    `salvatore.pisciotta@studio.unibo.it`  |   [_salvopisciotta_](https://github.com/SalvoPisciotta)   |
+| Tiberio   |    Marras     |    `tiberio.marras@studio.unibo.it`       |   -                                                       |
 
 # Bibliography
 
-1. [Learning to Ask: Neural Question Generation for Reading Comprehension](https://aclanthology.org/P17-1123) (Du et al., ACL 2017)
+### 1. [Learning to Ask: Neural Question Generation for Reading Comprehension](https://aclanthology.org/P17-1123) (Du et al., ACL 2017)
 
-# Acknowledgments
+# License
 
-Currently using the sources from `Python-templates/Tensorflow-Project-Template`, I want to thank them for the excellent work.
---->
+This project is licensed under the Apache License 2.0 - see the [LICENSE](./LICENSE) file for details.
