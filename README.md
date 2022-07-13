@@ -1,4 +1,4 @@
-# Question Generation using Deep Learning
+# GoQU: a Generator of QUestion: approaching question generation using Deep Learning
 
 This repository contains a final project realized for the **Natural Language Processing** course of the [Master's degree in Artificial Intelligence](https://corsi.unibo.it/2cycle/artificial-intelligence), University of Bologna.
 
