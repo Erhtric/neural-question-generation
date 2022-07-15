@@ -6,6 +6,7 @@ This repository contains a final project realized for the **Natural Language Pro
 
 -  [Data](#data)
 -  [Project Details](#project-details)
+    -  [Model Architecture](#model-architecture)
     -  [Folder structure](#folder-structure)
     -  [Technologies and Frameworks](#technologies-and-frameworks)
     -  [Configurations and enviroments](#configurations-and-enviroments)
@@ -21,6 +22,14 @@ The dataset on which we trained, developed and tested our *Question Generation* 
 # Project Details
 
 This project tries to solve the **Question Generation** task by using the ideas introduced in the paper by *Du et al.* [[1]](#1-learning-to-ask-neural-question-generation-for-reading-comprehensionhttpsaclanthologyorgp17-1123-du-et-al-acl-2017). It acknowledge that by implementing our revisited version of the model proposed in the 2017 by exploiting newer technologies and using the acclaimed Tensorflow framework provided by Google. To this end, this project only purpouse is only an educational and we do not reserve any credit for the great work done by Du et al.
+
+## Model Architecture
+
+<div align="center">
+
+<img align="center" hight="600" width="600" src="https://github.com/Erhtric/neural-question-generation/blob/master/pictures/GoQU_architecture.jpg?raw=true">
+
+</div>
 
 ## Folder structure
 --------------
