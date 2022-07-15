@@ -1,4 +1,4 @@
-# Question Generation using Deep Learning
+# GoQU: a Generator of QUestion: approaching question generation using Deep Learning
 
 This repository contains a final project realized for the **Natural Language Processing** course of the [Master's degree in Artificial Intelligence](https://corsi.unibo.it/2cycle/artificial-intelligence), University of Bologna.
 
@@ -11,7 +11,6 @@ This repository contains a final project realized for the **Natural Language Pro
     -  [Configurations and enviroments](#configurations-and-enviroments)
     -  [Versioning](#versioning)
  -  [Future Works](#future-works)
- -  [Group Members](#group-members)
  -  [Bibliography](#bibliography)
  -  [License](#license)
 
@@ -54,7 +53,6 @@ This project tries to solve the **Question Generation** task by using the ideas 
 │   ├── loss.py         - this file contains the loss used by the model
 │   └── callbacks.py    - this file contains the classes used as callbacks
 │
-│
 ├── data_loader
 │   └── data_generator.py   - this file contains the dataset methods for loading and processing it.
 │
@@ -91,14 +89,6 @@ Possible improvements to this project could be:
 - adding a more sophisticated decoding in the last part, instead of using the temperature sampling, see [beam search decoding](https://scholar.google.it/scholar?q=beam+search+decoding&hl=en&as_sdt=0&as_vis=1&oi=scholart),
 - use [contextual word embeddings](https://scholar.google.it/scholar?hl=en&as_sdt=0%2C5&as_vis=1&q=contextual+word+embeddings&btnG=&oq=contextual+word),
 - use a different model, maybe more sophisticated.
-
-## Group members
-
-|   Name    |  Surname      |                 Email                     |                       Username                            |
-| :-------: | :-----------: | :---------------------------------------: | :-------------------------------------------------------: |
-| Eric      |   Rossetto    | `eric.rossetto@studio.unibo.it`           |   [_erhtric_](https://github.com/Erhtric)                 |
-| Salvatore |  Pisciotta    |    `salvatore.pisciotta@studio.unibo.it`  |   [_salvopisciotta_](https://github.com/SalvoPisciotta)   |
-| Tiberio   |    Marras     |    `tiberio.marras@studio.unibo.it`       |   -                                                       |
 
 # Bibliography
 
