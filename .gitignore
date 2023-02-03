@@ -110,3 +110,5 @@ data/glove*
 data/squad*
 
 main_neuralqg.ipynb
+
+cloudflared.exe

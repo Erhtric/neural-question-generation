@@ -34,7 +34,7 @@ model_config = {
 }
 
 # Relative path to the directory containing the dataset, the checkpoints and the processed dataset
-path = {
+path_config = {
     'training_json_path': "./data/squad.json",
     # 'training_json_path': "./data/dev-v2.0.json",
     'save_pkl_path': "./data/squadv1.1.pkl",

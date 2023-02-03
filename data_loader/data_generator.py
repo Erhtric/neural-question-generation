@@ -3,8 +3,8 @@ import pandas as pd
 import json
 import re
 import os
-from typing import List, Tuple, NamedTuple
-from sklearn.model_selection import train_test_split, GroupShuffleSplit
+from typing import NamedTuple
+from sklearn.model_selection import GroupShuffleSplit
 
 import tensorflow as tf
 
@@ -29,6 +29,7 @@ class Dataset(NamedTuple):
 
 class SQuAD:
   def __init__(self):
+    # TODO: fix random seed
     self.random_seed = None
     self.squad_df = None
     self.preproc_squad_df = None
