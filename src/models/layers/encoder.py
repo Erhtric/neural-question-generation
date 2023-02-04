@@ -12,7 +12,7 @@ class Encoder(Model):
 
     self.embedding = Embedding(input_dim=self.input_dim,
                               output_dim=self.output_dim,
-                              input_shape=(model_config['max_length_context'],),
+                              # input_shape=(model_config['max_length_context'],),
                               embeddings_initializer=tf.keras.initializers.Constant(embedding_matrix),
                               trainable=False,
                               mask_zero=True,
@@ -33,6 +33,7 @@ class Encoder(Model):
   def call(self, inputs, state=None, training=False):
     # 1. The input is a tokenized and padded sentence containing the answer from the context
     # 2. The embedding layer looks up for the embedding for each token, the mask is automatically produced
+    print(inputs.shape)
     vectors = self.embedding(inputs)
 
     vectors = self.spatial_dropout(vectors)

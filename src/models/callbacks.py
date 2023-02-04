@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.callbacks import Callback
-from configs.config import model_config, path
+from configs.config import model_config, path_config
 
 class GetEpochNumber(Callback):
   def __init__(self, **kwargs) -> None:
@@ -57,13 +57,13 @@ class CustomLearningRateScheduler(Callback):
 
 # Initialize the callbacks
 
-batch_loss = BatchLogs('batch_loss')
-perplexity = BatchLogs('perplexity')
-accuracy = BatchLogs('accuracy')
-lr_scheduler = CustomLearningRateScheduler()
-epoch_counter = GetEpochNumber()
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=path['log_dir'], histogram_freq=1)
-early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_perplexity',
-                                                  patience=8,
-                                                  mode='max',
-                                                  restore_best_weights=True)
+# batch_loss = BatchLogs('batch_loss')
+# perplexity = BatchLogs('perplexity')
+# accuracy = BatchLogs('accuracy')
+# lr_scheduler = CustomLearningRateScheduler()
+# epoch_counter = GetEpochNumber()
+# tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=path['log_dir'], histogram_freq=1)
+# early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_perplexity',
+#                                                   patience=8,
+#                                                   mode='max',
+#                                                   restore_best_weights=True)

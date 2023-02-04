@@ -2,9 +2,7 @@ import tensorflow as tf
 from keras.layers import Input
 from keras.models import Model
 from keras.metrics import Accuracy, Mean
-from models.layers.encoder import Encoder
-from models.layers.decoder import Decoder
-from models.layers.masking import CustomMasking as Masking
+from src.models.layers import Encoder, Decoder, CustomMasking as Masking
 from .metrics import MaskedAccuracy, Perplexity
 class Trainer(Model):
   def __init__(self, model_config, embedding_matrix_context, embedding_matrix_question, **kwargs):
@@ -14,7 +12,7 @@ class Trainer(Model):
     Also it defines a wrapper to use the tf.function compilation for the tensorflow computational
     graph.
     """
-    super(Trainer, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.context_input = Input(shape=(model_config['max_length_context']), batch_size=model_config['batch_size'])
     self.question_input = Input(shape=(model_config['max_length_question']), batch_size=model_config['batch_size'])
     self.masking = Masking(mask_value=0)
@@ -50,7 +48,8 @@ class Trainer(Model):
     """
     It performs a forward pass. Calls the model on new inputs and returns the outputs as tensors.
     """
-    context, question = inputs
+    context = inputs[0]
+    question = inputs[1]
 
     context = self.masking(context)
     question = self.masking(question)
@@ -69,6 +68,9 @@ class Trainer(Model):
 
     # Encode the input, that is the context
     encoder_outputs, encoder_state = self.encoder(context, training=training)
+
+    print(encoder_outputs.shape)
+    print(encoder_state.shape)
 
     # The decoder should be initialized with the encoder last state
     decoder_state = encoder_state
