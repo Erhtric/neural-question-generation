@@ -29,7 +29,6 @@ class Dataset(NamedTuple):
 
 class SQuAD:
   def __init__(self):
-    # TODO: fix random seed
     self.random_seed = None
     self.squad_df = None
     self.preproc_squad_df = None

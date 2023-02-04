@@ -4,16 +4,16 @@ from keras.layers import Embedding, LSTM, Input, Dense, AdditiveAttention, Conca
 
 class Decoder(Model):
   def __init__(self, model_config, embedding_matrix, **kwargs):
-    super(Decoder, self).__init__(**kwargs)
+    super().__init__(**kwargs)
     self.batch_size = model_config['batch_size']
 
     # Attributes
-    self.new_token_input = Input(shape=(1),
-                           batch_size=self.batch_size,
-                           name='Token_t')
-    self.enc_output_input = Input(shape=(model_config['max_length_context'], model_config['enc_units']), 
-                            batch_size=model_config['batch_size'],
-                            name='Enc_output')
+    # self.new_token_input = Input(shape=(1),
+    #                        batch_size=self.batch_size,
+    #                        name='Token_t')
+    # self.enc_output_input = Input(shape=(model_config['max_length_context'], model_config['enc_units']), 
+    #                         batch_size=model_config['batch_size'],
+    #                         name='Enc_output')
 
     self.embedding = Embedding(input_dim=embedding_matrix.shape[0],
                                output_dim=embedding_matrix.shape[1],
@@ -81,15 +81,15 @@ class Decoder(Model):
 
     return [logits, attention_weights, (h, c)]
 
-      # Reference :- https://stackoverflow.com/questions/61427583/how-do-i-plot-a-keras-tensorflow-subclassing-api-model
-  def build_graph(self):
-    return tf.keras.Model(inputs=[self.new_token_input, self.enc_output_input], outputs=self.call([self.new_token_input, self.enc_output_input]))
+  #     # Reference :- https://stackoverflow.com/questions/61427583/how-do-i-plot-a-keras-tensorflow-subclassing-api-model
+  # def build_graph(self):
+  #   return tf.keras.Model(inputs=[self.new_token_input, self.enc_output_input], outputs=self.call([self.new_token_input, self.enc_output_input]))
 
-  def plot_model(self):
-    return tf.keras.utils.plot_model(
-        self.build_graph(),
-        to_file="decoder.jpg",
-        show_shapes=True,
-        show_layer_names=True,
-        expand_nested=True
-    )
+  # def plot_model(self):
+  #   return tf.keras.utils.plot_model(
+  #       self.build_graph(),
+  #       to_file="decoder.jpg",
+  #       show_shapes=True,
+  #       show_layer_names=True,
+  #       expand_nested=True
+  #   )

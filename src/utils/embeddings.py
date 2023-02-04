@@ -1,7 +1,7 @@
 import numpy as np
 import gensim.downloader as gloader
 from gensim.models import KeyedVectors
-import tqdm as tqdm
+from tqdm.auto import tqdm
 
 class GloVe:
   def __init__(self, embedding_dimension):
@@ -50,7 +50,7 @@ class GloVe:
     oov_words = []
 
     # For each word which is not present in the vocabulary we assign a random vector, otherwise we take the GloVe embedding
-    for word, idx in word_to_idx.items():
+    for word, idx in tqdm(word_to_idx.items()):
       try:
         embedding_vector = self.embedding_model[word]
       except (KeyError, TypeError):

@@ -18,9 +18,9 @@ dataset_config = {
 # Model configuration: this is the configuration of the model that will be
 # trained.
 model_config = {
-    'batch_size': BATCH_SIZE,
-    'enc_units': UNITS,
-    'dec_units': UNITS,
+    'batch_size': 64,
+    'enc_units': 256,
+    'dec_units': 256,
     'max_length_context': None,
     'max_length_question': None,
     'dropout_rate': .3,

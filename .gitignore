@@ -107,8 +107,6 @@ ENV/
 experiments/
 
 data/glove*
-data/squad*
-
-main_neuralqg.ipynb
+# data/squad*
 
 cloudflared.exe
