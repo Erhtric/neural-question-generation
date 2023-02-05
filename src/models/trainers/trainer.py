@@ -69,9 +69,6 @@ class Trainer(Model):
     # Encode the input, that is the context
     encoder_outputs, encoder_state = self.encoder(context, training=training)
 
-    print(encoder_outputs.shape)
-    print(encoder_state.shape)
-
     # The decoder should be initialized with the encoder last state
     decoder_state = encoder_state
 

@@ -9,10 +9,13 @@ class Encoder(Model):
     self.input_dim = embedding_matrix.shape[0]
     self.output_dim = embedding_matrix.shape[1]
     self.max_length_context = model_config['max_length_context']
+    self.enc_units = model_config['enc_units']
+
+    self.encoder_input = Input(shape=(self.max_length_context,), batch_size=self.batch_size, name='Context_input')
 
     self.embedding = Embedding(input_dim=self.input_dim,
                               output_dim=self.output_dim,
-                              # input_shape=(model_config['max_length_context'],),
+                              input_shape=(self.max_length_context,),
                               embeddings_initializer=tf.keras.initializers.Constant(embedding_matrix),
                               trainable=False,
                               mask_zero=True,
@@ -20,7 +23,7 @@ class Encoder(Model):
 
     self.spatial_dropout = SpatialDropout1D(model_config['dropout_rate'])
 
-    self.bi_lstm = Bidirectional(LSTM(model_config['enc_units']//2,
+    self.bi_lstm = Bidirectional(LSTM(self.enc_units // 2,
                                       return_sequences=True,
                                       return_state=True,
                                       dropout=model_config['dropout_rate'],
@@ -33,7 +36,6 @@ class Encoder(Model):
   def call(self, inputs, state=None, training=False):
     # 1. The input is a tokenized and padded sentence containing the answer from the context
     # 2. The embedding layer looks up for the embedding for each token, the mask is automatically produced
-    print(inputs.shape)
     vectors = self.embedding(inputs)
 
     vectors = self.spatial_dropout(vectors)
@@ -54,18 +56,16 @@ class Encoder(Model):
 
   # Reference :- https://stackoverflow.com/questions/61427583/how-do-i-plot-a-keras-tensorflow-subclassing-api-model
   def build_graph(self):
-    # TODO: fix
     # return tf.keras.Model(inputs=[self.encoder_input], outputs=[self.call(self.encoder_input)])
     x = Input(shape=(self.max_length_context,), batch_size=self.batch_size, name='Context')
-    model = tf.keras.Model(inputs=[x], outputs=[self.call(x)][0])
-    print(model.summary())
+    model = tf.keras.Model(inputs=[x], outputs=[self.call(x)])
     return model
 
-  def plot_model(self):
+  def plot_model(self, filepath: str = "./pictures/encoder.jpg"):
     # TODO: fix the the issue with build graph and should be resolved
     return tf.keras.utils.plot_model(
         self.build_graph(),
-        to_file="encoder.jpg",
+        to_file=filepath,
         show_shapes=True,
         show_layer_names=True,
         expand_nested=True
