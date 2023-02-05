@@ -124,3 +124,6 @@ def preprocess_input(sen, data_generator):
                                                         maxlen=data_generator.max_length_context,
                                                         padding='post')
     return sen
+
+def compute_pos_batch():
+    pass

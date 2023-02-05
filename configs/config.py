@@ -2,6 +2,8 @@ BATCH_SIZE = 32
 UNITS = 512
 ENABLE_KERAS_TUNER = False
 
+# TODO: convert to a class configuration or to yml file
+
 # Dataset configuration: in this case we are working with a reduced version
 # of the SQuAD dataset.
 dataset_config = {
@@ -40,6 +42,7 @@ path_config = {
     'save_pkl_path': "./data/squadv1.1.pkl",
     # 'checkpoint_dir': "./training_checkpoints",
     'log_dir': "./models/logs",
+    'process_data': "./data/processed_data",
 }
 
 # Evaluation configuration: this is the configuration of the model that will be
