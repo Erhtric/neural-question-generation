@@ -180,9 +180,9 @@ class SQuAD:
         test_dataset = self.to_tensor(X_test_tokenized, y_test_tokenized)
 
         # # Configure the dataset for performance
-        # train_dataset = train_dataset.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
-        # val_dataset = val_dataset.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
-        # test_dataset = test_dataset.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
+        train_dataset = train_dataset.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
+        val_dataset = val_dataset.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
+        test_dataset = test_dataset.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
 
         if self.process_data_dirpath:
           os.makedirs(self.process_data_dirpath, exist_ok=True)
@@ -394,9 +394,10 @@ class SQuAD:
       pos_tags.append(pos_tags_str)
 
     # Add the pos tags to the dataframe
-    X_tokenized["context_pos"] = pd.Series(pos_tags)
+    X_tokenized_pos = pd.DataFrame(X_tokenized)
+    X_tokenized_pos["context_pos"] = pd.Series(pos_tags)
 
-    return X_tokenized
+    return X_tokenized_pos
 
   def compute_pos_tags_question(self, Y_tokenized):
     question = Y_tokenized.copy()
@@ -428,7 +429,7 @@ class SQuAD:
       pos_tags.append(pos_tags_str)
 
     # Add the pos tags to the dataframe
-    Y_tokenized_pos = pd.DataFrame(Y_tokenized, columns=["question"])
+    Y_tokenized_pos = pd.DataFrame(Y_tokenized)
     Y_tokenized_pos["question_pos"] = pd.Series(pos_tags)
 
     return Y_tokenized_pos
@@ -510,10 +511,13 @@ class SQuAD:
     # X = X.context.copy()
     # y = y.copy()
 
-    X = X.context.copy()
-    X_pos = X.context_pos.copy()
-    y = y.question.copy()
-    y_pos = y.question_pos.copy()
+    X = pd.DataFrame(X)
+    y = pd.DataFrame(y)
+
+    X = X["context"].values
+    X_pos = X["context_pos"].values
+    y = y["question"].values
+    y_pos = y["question_pos"].values
 
     # Reference:- https://www.tensorflow.org/api_docs/python/tf/data/Dataset
     dataset = tf.data.Dataset.from_tensor_slices(
