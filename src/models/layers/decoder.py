@@ -12,6 +12,7 @@ class Decoder(Model):
     self.max_length_question = model_config['max_length_question']
     self.enc_units = model_config['enc_units']
     self.dec_units = model_config['dec_units']
+    self.spacy_pos_vocab = spacy_pos_vocab
 
     # Attributes
     self.new_token_input = Input(shape=(1),
@@ -27,6 +28,13 @@ class Decoder(Model):
                                trainable=False,
                                mask_zero=True,
                                name='Question_embedding')
+
+    self.pos_embedding = Embedding(input_dim=len(self.spacy_pos_vocab),
+                                  output_dim=self.output_dim,
+                                  trainable=False,
+                                  name='POS_embedding')
+
+    self.pos_concatenate = tf.keras.layers.Concatenate(axis=2, name='Pos_word_merge')
 
     self.lstm_layer_1 = LSTM(self.dec_units,
                            return_sequences=True,
@@ -54,11 +62,17 @@ class Decoder(Model):
     # Compute the logits
     self.decoder_logits = Dense(self.input_dim, use_bias=False, name='Logits_Ws')
 
-  def call(self, new_token, enc_output, state=None, training=False):
+  def call(self, new_token, new_token_pos, enc_output, state=None, training=False):
     # 1. The embedding layer looks up for the embedding for each token, masks is automatically computed
     # vectors shape: (batch_size, 1, embedding_dimension)
     vectors = self.embedding(new_token)
+    vectors_pos = self.pos_embedding(new_token_pos)
+
     if tf.shape(vectors).shape == 2: vectors = tf.expand_dims(vectors, axis=1)
+    if tf.shape(vectors_pos).shape == 2: vectors_pos = tf.expand_dims(vectors_pos, axis=1)
+
+    # 2. Concatenate the word embedding with the POS embedding
+    vectors = self.pos_concatenate([vectors, vectors_pos])
 
     # 2. Process one step with the LSTM
     # LSTM expects inputs of shape: (batch_size, timestep, feature)

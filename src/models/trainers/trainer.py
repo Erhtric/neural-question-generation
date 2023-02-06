@@ -15,7 +15,10 @@ class Trainer(Model):
     super().__init__(**kwargs)
     self.context_input = Input(shape=(model_config['max_length_context']), batch_size=model_config['batch_size'])
     self.question_input = Input(shape=(model_config['max_length_question']), batch_size=model_config['batch_size'])
+
+    # TODO: pass as parameter
     self.masking = Masking(mask_value=0)
+    self.masking_pos = Masking(mask_value=6)
     self.encoder = Encoder(model_config=model_config, embedding_matrix=embedding_matrix_context)
     self.decoder = Decoder(model_config=model_config, embedding_matrix=embedding_matrix_question)
 
@@ -53,6 +56,9 @@ class Trainer(Model):
 
     context = self.masking(context)
     question = self.masking(question)
+
+    context = self.masking_pos(context)
+    question = self.masking_pos(question)
 
     # We collect the question predicted by the decoder, the first character is the starting token
     y_pred = tf.fill([self.batch_size, 1], question[0][0])
@@ -114,7 +120,7 @@ class Trainer(Model):
     new_token = tokens[0]
 
     # Run the decoder one time, this will return the logits for the token at timestep t+1 for the entire batch
-    decoder_logits, _, decoder_state = self.decoder([new_token, encoder_outputs], state=decoder_state, training=training)
+    decoder_logits, _, decoder_state = self.decoder(new_token, encoder_outputs, state=decoder_state, training=training)
 
     y_true = tf.expand_dims(tokens[1], axis=1)
     y_pred = decoder_logits

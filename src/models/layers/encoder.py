@@ -3,13 +3,14 @@ from keras.models import Model
 from keras.layers import Embedding, LSTM, Bidirectional, Input, Concatenate, SpatialDropout1D
 
 class Encoder(Model):
-  def __init__(self, model_config, embedding_matrix, **kwargs):
+  def __init__(self, model_config, embedding_matrix, spacy_pos_vocab, **kwargs):
     super().__init__(**kwargs)
     self.batch_size = model_config['batch_size']
     self.input_dim = embedding_matrix.shape[0]
     self.output_dim = embedding_matrix.shape[1]
     self.max_length_context = model_config['max_length_context']
     self.enc_units = model_config['enc_units']
+    self.spacy_pos_vocab = spacy_pos_vocab
 
     self.encoder_input = Input(shape=(self.max_length_context,), batch_size=self.batch_size, name='Context_input')
 
@@ -20,6 +21,14 @@ class Encoder(Model):
                               trainable=False,
                               mask_zero=True,
                               name='Context_embedding')
+
+    self.pos_embedding = Embedding(input_dim=len(spacy_pos_vocab),
+                                  output_dim=embedding_matrix.shape[1],
+                                  input_length=model_config['max_length_context'],
+                                  trainable=False,
+                                  name ='POS_embedding')
+
+    self.pos_concatenate = tf.keras.layers.Concatenate(axis=2, name='Pos_word_merge')
 
     self.spatial_dropout = SpatialDropout1D(model_config['dropout_rate'])
 
@@ -33,10 +42,13 @@ class Encoder(Model):
 
     self.concatenate = Concatenate(axis=1, name='Merge')
 
-  def call(self, inputs, state=None, training=False):
+  def call(self, context, context_pos, state=None, training=False):
     # 1. The input is a tokenized and padded sentence containing the answer from the context
     # 2. The embedding layer looks up for the embedding for each token, the mask is automatically produced
-    vectors = self.embedding(inputs)
+    vectors = self.embedding(context)
+    vectors_pos = self.pos_embedding(context_pos)
+
+    vectors = self.pos_concatenate([vectors, vectors_pos])
 
     vectors = self.spatial_dropout(vectors)
 

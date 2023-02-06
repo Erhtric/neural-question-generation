@@ -10,7 +10,8 @@ from tqdm import tqdm
 import tensorflow as tf
 
 import spacy
-from spacy.attrs import ORTH
+from spacy.attrs import ORTH, TAG
+from spacy.language import Language
 import en_core_web_sm
 
 import nltk
@@ -47,6 +48,15 @@ class SQuAD:
     self.nlp.tokenizer.add_special_case('<eos>', [{ORTH: "<eos>"}])
     self.nlp.tokenizer.add_special_case('<pad>', [{ORTH: "<pad>"}])
     self.nlp.tokenizer.add_special_case('<unk>', [{ORTH: "<unk>"}])
+
+    # @Language.component("pos_postprocessor_pipe")
+    # def pos_postprocessor_pipe(doc) :
+    #   for token in doc:
+    #       if token.text == '<pad>':
+    #           token.pos_ = {TAG: '<pad>'}
+    #   return doc
+
+    # self.nlp.add_pipe("pos_postprocessor_pipe", before='parser')
 
   def __call__(self, dataset_config: dict, path: dict, tokenized: bool = True, compute_pos: bool = False, tensor_type: bool = True):
     """The method loads a subset of the SQuAD dataset, preprocess it and optionally it returns
@@ -104,6 +114,14 @@ class SQuAD:
 
     # Perform splitting
     X_train, y_train, X_val, y_val, X_test, y_test = self.split_train_val(self.preproc_squad_df)
+    X_train = X_train.iloc[:100]
+    y_train = y_train.iloc[:100]
+
+    X_val = X_val.iloc[:100]
+    y_val = y_val.iloc[:100]
+
+    X_test = X_test.iloc[:100]
+    y_test = y_test.iloc[:100]
 
     # Initialize Tokenizer for the source: in our case the context sentences
     self.tokenizer_context = tf.keras.preprocessing.text.Tokenizer(filters='',
@@ -161,10 +179,10 @@ class SQuAD:
         val_dataset = self.to_tensor(X_val_tokenized, y_val_tokenized)
         test_dataset = self.to_tensor(X_test_tokenized, y_test_tokenized)
 
-        # Configure the dataset for performance
-        train_dataset = train_dataset.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
-        val_dataset = val_dataset.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
-        test_dataset = test_dataset.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
+        # # Configure the dataset for performance
+        # train_dataset = train_dataset.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
+        # val_dataset = val_dataset.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
+        # test_dataset = test_dataset.cache().prefetch(buffer_size=tf.data.AUTOTUNE)
 
         if self.process_data_dirpath:
           os.makedirs(self.process_data_dirpath, exist_ok=True)
@@ -352,7 +370,7 @@ class SQuAD:
     # Spacy requires words so we have to untokenize the context
     context = self.tokenizer_context.sequences_to_texts(context)
 
-    context_union_pos = []
+    pos_tags = []
     for idx, sentence in tqdm(enumerate(context), desc="Computing POS tags for the context...", total=len(context), unit="seq"):
       # Generate POS tags
       doc = self.nlp(sentence)
@@ -373,10 +391,10 @@ class SQuAD:
       sentence = self.tokenizer_context.texts_to_sequences([sentence.strip()])[0]
       pos_tags_str = self.tokenizer_context_pos.texts_to_sequences([pos_tags_str.strip()])[0]
 
-      context_union_pos.append(sentence + pos_tags_str)
+      pos_tags.append(pos_tags_str)
 
     # Add the pos tags to the dataframe
-    X_tokenized.context = pd.Series(context_union_pos)
+    X_tokenized["context_pos"] = pd.Series(pos_tags)
 
     return X_tokenized
 
@@ -386,7 +404,7 @@ class SQuAD:
     # Spacy requires words so we have to untokenize the question
     question = self.tokenizer_question.sequences_to_texts(question)
 
-    question_union_pos= []
+    pos_tags = []
     for sentence in tqdm(question, desc="Computing POS tags for the question...", total=len(question), unit="seq"):
       # Generate POS tags
       doc = self.nlp(sentence)
@@ -407,12 +425,13 @@ class SQuAD:
       sentence = self.tokenizer_question.texts_to_sequences([sentence])[0]
       pos_tags_str = self.tokenizer_question_pos.texts_to_sequences([pos_tags_str])[0]
 
-      question_union_pos.append(sentence + pos_tags_str)
+      pos_tags.append(pos_tags_str)
 
     # Add the pos tags to the dataframe
-    Y_tokenized = pd.Series(question_union_pos)
+    Y_tokenized_pos = pd.DataFrame(Y_tokenized, columns=["question"])
+    Y_tokenized_pos["question_pos"] = pd.Series(pos_tags)
 
-    return Y_tokenized
+    return Y_tokenized_pos
 
   def __tokenize_context(self, X, test):
     context = X.context
@@ -430,6 +449,9 @@ class SQuAD:
     # Add the padding
     self.tokenizer_context.word_index['<pad>'] = 0
     self.tokenizer_context.index_word[0] = '<pad>'
+
+    self.tokenizer_context_pos.word_index['<PAD>'] = 0
+    self.tokenizer_context_pos.index_word[0] = '<PAD>'
 
     return X, self.tokenizer_context.word_index
 
@@ -449,6 +471,9 @@ class SQuAD:
     # Add the padding
     self.tokenizer_question.word_index['<pad>'] = 0
     self.tokenizer_question.index_word[0] = '<pad>'
+
+    self.tokenizer_question_pos.word_index['<PAD>'] = 0
+    self.tokenizer_question_pos.index_word[0] = '<PAD>'
 
     return y, self.tokenizer_question.word_index
 
@@ -482,12 +507,18 @@ class SQuAD:
     self.squad_df.context = selected_sentences
 
   def to_tensor(self, X, y, train=True):
+    # X = X.context.copy()
+    # y = y.copy()
+
     X = X.context.copy()
-    y = y.copy()
+    X_pos = X.context_pos.copy()
+    y = y.question.copy()
+    y_pos = y.question_pos.copy()
 
     # Reference:- https://www.tensorflow.org/api_docs/python/tf/data/Dataset
     dataset = tf.data.Dataset.from_tensor_slices(
-        (tf.cast(list(X), tf.int64), tf.cast(list(y), tf.int64))
+        (tf.cast(list(X), tf.int64), tf.cast(list(X_pos), tf.int64)),
+        (tf.cast(list(y), tf.int64), tf.cast(list(y_pos), tf.int64))
       )
 
     if train:
