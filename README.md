@@ -31,7 +31,7 @@ This project tries to solve the **Question Generation** task by using the ideas 
 
 </div>
 
-## Folder structure
+## Folder structure (WIP)
 --------------
 
 ```
